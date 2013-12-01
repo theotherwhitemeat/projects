@@ -1,0 +1,18 @@
+
+
+crawler notes:
+
+components:
+  - python wrapper
+  - c++ / binary crawler module
+  - db
+    - table schema == tree represenation to speed-up queries
+
+execution:
+  - select filetypes, ids from db
+    - if encounter new type, insert to db, get id
+  - load db options from cmdline or settings file
+
+
+constraints:
+  - one master process per execution so we can avoid race conditions on the db
