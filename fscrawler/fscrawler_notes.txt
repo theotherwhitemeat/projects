@@ -16,3 +16,11 @@ execution:
 
 constraints:
   - one master process per execution so we can avoid race conditions on the db
+
+algorithms:
+  - fscrawler should dynamically create and destroy processes according to inodes accesses per second (with hard-set min and max)
+
+todo:
+  - prototype things
+  - make custom fscrawler c++ module
+
