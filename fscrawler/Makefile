@@ -5,3 +5,6 @@ all: fscrawl
 
 fscrawl:
 	$(CC) $(CFLAGS) fscrawl.cpp -o fscrawl
+
+clean:
+	rm -f *.o fscrawl

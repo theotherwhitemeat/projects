@@ -7,6 +7,8 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <tbb/parallel_for.h>
+
 
 using namespace std;
 
@@ -25,6 +27,7 @@ int main()
     // seed root dir
     dirs.push_back("/");
 
+    int iters = 0;
     while (dirs.size() > 0)
     {
         string current_dir_str = dirs.front();
@@ -42,6 +45,8 @@ int main()
         }
         while ((dir_entry = readdir(current_dir)))
         {
+            iters++;
+            if (iters > 1000){ return 0;}
             // Skip '.' and '..' entries
             string dirname = dir_entry->d_name;
             if ((dirname == ".") or (dirname == ".."))
