@@ -1,49 +1,82 @@
 #include <deque>
+#include <fstream>
 #include <iostream>
+#include <string>
 
-class Accelerometer {
+#include <dirent.h>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
-    int recommended_output;
-    size_t max_inputs;
-    std::deque<int> input_vals;
+using namespace std;
 
-    public:
-        void append_val(int val);
-        int get_acceleration();
-        int get_recommended_output();
-};
+int main()
+{
+    ifstream fin;
+    string dir, filepath;
+    DIR *current_dir;
+    struct dirent *dir_entry;
+    struct stat filestat;
 
-void Accelerometer::append_val(int val) {
-    // pop values off the back if we've reached
-    //  the maximum number of values we want to inspect
-    if (input_vals.size() >= max_inputs) {
-        input_vals.pop_back();
-    }
-    input_vals.push_front(val);
-}
+    // files and dirs
+    deque<string> dirs;
+    deque<string> files;
 
+    // seed root dir
+    dirs.push_back("/");
 
-int Accelerometer::get_acceleration() {
-    // Measure the rate of change between the 
-    //  first half of the input_vals and the last
-    //  half
-
-    int first_count = 0;
-    int last_count = 0;
-    for (size_t i = 0; i < input_vals.size(); i++) {
-        if (i < input_vals.size()) {
-            first_count += input_vals[i];
+    while (dirs.size() > 0)
+    {
+        string current_dir_str = dirs.front();
+        dirs.pop_front();
+        current_dir = opendir(current_dir_str.c_str());
+        if (current_dir == NULL)
+        {
+            cout << "Error(" << errno << ") opening " << current_dir_str << endl;
+            continue;
         }
-        else{
-            last_count += input_vals[i];
+        // Skip '.' and '..' entries
+        else if ((current_dir_str == "..") or (current_dir_str == "."))
+        {
+            continue;
         }
+        while ((dir_entry = readdir(current_dir)))
+        {
+            // Skip '.' and '..' entries
+            string dirname = dir_entry->d_name;
+            if ((dirname == ".") or (dirname == ".."))
+            {
+                continue;
+            }
+            string inode_path = current_dir_str + "/" + dir_entry->d_name;
+
+            // If the file is a directory (or is in some way invalid) we'll skip it 
+            if (stat(inode_path.c_str(), &filestat) == -1)
+            {
+                perror("stat");
+                continue;
+            }
+            else if (S_ISDIR(filestat.st_mode))
+            {
+                dirs.push_back(inode_path);
+                cout << "Found a dir: " << inode_path << endl;
+            }
+            else
+            {
+                files.push_back(inode_path);
+                cout << "Found a file: " << inode_path << endl;
+            }
+        }
+        closedir(current_dir);
     }
-
-    return 0;
-
-}
-
-
-int main() {
     return 0;
 }
+
+
+
+
+
+
+
+
+

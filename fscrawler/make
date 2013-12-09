@@ -1,1 +1,1 @@
-g++-4.8 -Wall --std=c++11 fscrawl.cpp
+g++-4.8 -Wall -fpermissive --std=c++11 fscrawl.cpp
